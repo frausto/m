@@ -183,19 +183,19 @@ module M
       # If we found any tests,
       if tests_to_run.size > 0
         # assemble the regexp to run these tests,
-        test_names = tests_to_run.map { |test| Regexp.escape(test.name) }.join('|')
-
-        # set up the args needed for the runner
-        test_arguments = ["-n", "/^(#{test_names})$/"]
+        test_names = tests_to_run.map(&:name).first
 
         # directly run the tests from here and exit with the status of the tests passing or failing
-        if defined?(MiniTest)
-          MiniTest::Unit.runner.run test_arguments
-        elsif defined?(Test)
-          Test::Unit::AutoRunner.run(false, nil, test_arguments)
-        else
-          not_supported
+        require "rake/testtask"
+
+        Rake::TestTask.new(:m_custom) do |t|
+          t.libs << 'test'
+          t.libs << 'spec'
+          t.test_files = FileList[@file]
+          t.options = "--name=#{test_names}"
         end
+        # Invoke the rake task and exit, hopefully it'll work!
+        Rake::Task['m_custom'].invoke
       elsif tests.size > 0
         # Otherwise we found no tests on this line, so you need to pick one.
         message = "No tests found on line #{@line}. Valid tests to run:\n\n"
@@ -215,6 +215,7 @@ module M
         STDERR.puts message
         false
       end
+      true
     end
 
     # Finds all test suites in this test file, with test methods included.
