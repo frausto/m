@@ -145,8 +145,8 @@ module M
             t.test_files = FileList["#{@file}/*test*.rb", "#{@file}/*spec*.rb"]
           end
           # Invoke the rake task and exit, hopefully it'll work!
-          Rake::Task['m_custom'].invoke
-          exit
+          Rake::Task['m_custom'].invoke rescue nil
+          exit 0
         end
       end
     end
@@ -195,7 +195,7 @@ module M
           t.options = "--name=#{test_names}"
         end
         # Invoke the rake task and exit, hopefully it'll work!
-        Rake::Task['m_custom'].invoke
+        Rake::Task['m_custom'].invoke rescue nil
       elsif tests.size > 0
         # Otherwise we found no tests on this line, so you need to pick one.
         message = "No tests found on line #{@line}. Valid tests to run:\n\n"
@@ -208,14 +208,12 @@ module M
 
         # Spit out helpful message and bail
         STDERR.puts message
-        false
       else
         # There were no tests at all
         message = "There were no tests found.\n\n"
         STDERR.puts message
-        false
       end
-      true
+      0
     end
 
     # Finds all test suites in this test file, with test methods included.
