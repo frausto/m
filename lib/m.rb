@@ -183,7 +183,7 @@ module M
       # If we found any tests,
       if tests_to_run.size > 0
         # assemble the regexp to run these tests,
-        test_names = tests_to_run.map(&:name).first
+        test_names = tests_to_run.map(&:name)
 
         # directly run the tests from here and exit with the status of the tests passing or failing
         require "rake/testtask"
@@ -192,7 +192,7 @@ module M
           t.libs << 'test'
           t.libs << 'spec'
           t.test_files = FileList[@file]
-          t.options = "--name=#{test_names}"
+          t.options = "--name=#{test_names.first}" if test_names.size == 1
         end
         # Invoke the rake task and exit, hopefully it'll work!
         Rake::Task['m_custom'].invoke rescue nil
